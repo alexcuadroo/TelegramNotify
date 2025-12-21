@@ -2,3 +2,14 @@ name: TelegramNotify
 version: 2.0
 main: com.telegramnotify.Main
 api-version: 1.20
+
+commands:
+  telereload:
+    description: Recarga la configuración de TelegramNotify
+    usage: /<command>
+    permission: telegramnotify.reload
+    
+permissions:
+  telegramnotify.reload:
+    description: Permite recargar la configuración del plugin
+    default: op

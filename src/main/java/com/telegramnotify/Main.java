@@ -16,9 +16,7 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
-        token = getConfig().getString("telegram.token");
-        chatId = getConfig().getString("telegram.chat_id");
+        loadConfigValues();
 
         if (token == null || chatId == null) {
             getLogger().severe("Token o Chat ID no configurados");
@@ -26,7 +24,13 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         Bukkit.getPluginManager().registerEvents(this, this);
+        getCommand("telereload").setExecutor(new ReloadCommand(this));
         getLogger().info("TelegramNotify activado");
+    }
+    
+    public void loadConfigValues() {
+        token = getConfig().getString("telegram.token");
+        chatId = getConfig().getString("telegram.chat_id");
     }
 
     @EventHandler
