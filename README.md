@@ -21,7 +21,7 @@ El archivo `config.yml` contiene las siguientes opciones principales:
 - Otras opciones para personalizar los mensajes y eventos a notificar.
 
 ## Comandos
-- `/telegramnotify reload` — Recarga la configuración del plugin sin reiniciar el servidor.
+- `/telereload` — Recarga la configuración del plugin sin reiniciar el servidor. Permisos: telegramnotify.reload, por defecto solo los OP lo tienen activo.
 
 ## Funcionalidades
 - Envía notificaciones a Telegram cuando:
