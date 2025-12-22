@@ -27,6 +27,7 @@ El archivo `config.yml` contiene las siguientes opciones principales:
 - Envía notificaciones a Telegram cuando:
   - Un jugador entra o sale del servidor.
   - Un jugador muere.
+  - Servidor iniciado.
   - Permite recargar la configuración en caliente mediante comando.
 
 ## Permisos
