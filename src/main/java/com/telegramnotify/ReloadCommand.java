@@ -22,7 +22,7 @@ public class ReloadCommand implements CommandExecutor {
 
         plugin.reloadConfig();
         plugin.loadConfigValues();
-        sender.sendMessage(ChatColor.GREEN + "✓ Configuración de TelegramNotify recargada exitosamente.");
+        sender.sendMessage(ChatColor.GREEN + "✓ Configuración de TelegramNotify recargada.");
         return true;
     }
 }
