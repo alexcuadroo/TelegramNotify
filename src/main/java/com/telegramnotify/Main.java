@@ -57,10 +57,10 @@ public class Main extends JavaPlugin implements Listener {
                 getConfig().getBoolean("notifications.quit", true),
                 getConfig().getBoolean("notifications.death", true),
                 getConfig().getBoolean("notifications.server_start", true),
-                getConfig().getString("messages.join", "✅ *{player}* entró al servidor"),
-                getConfig().getString("messages.quit", "❌ *{player}* salió del servidor"),
-                getConfig().getString("messages.death", "💀 *{player}* murió"),
-                getConfig().getString("messages.server_start", "🚀 Servidor iniciado")
+                getConfig().getString("messages.join", "🟢 *{player}* entró al servidor"),
+                getConfig().getString("messages.quit", "🔴 *{player}* salió del servidor"),
+                getConfig().getString("messages.death", "✖️ *{player}* murió"),
+                getConfig().getString("messages.server_start", "🔵 Servidor iniciado")
         );
 
         configSnapshot = snapshot;

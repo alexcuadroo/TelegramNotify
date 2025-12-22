@@ -11,7 +11,7 @@ notifications:
 
 # Mensajes personalizables ({player} será reemplazado por el nombre del jugador)
 messages:
-  join: "✅ *{player}* entró al servidor"
-  quit: "❌ *{player}* salió del servidor"
-  death: "💀 *{player}* murió"
-  server_start: "🚀 Servidor iniciado"
+  join: "🟢 *{player}* entró al servidor"
+  quit: "🔴 *{player}* salió del servidor"
+  death: "✖️ *{player}* murió"
+  server_start: "🔵 Servidor iniciado"
