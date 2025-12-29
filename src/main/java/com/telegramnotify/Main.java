@@ -89,7 +89,26 @@ public class Main extends JavaPlugin implements Listener {
         ConfigSnapshot cfg = configSnapshot;
         if (!cfg.isValid() || !cfg.notifyDeath()) return;
 
-        String msg = cfg.deathMessage().replace("{player}", e.getEntity().getName());
+        String deathCause = e.getEntity().getName() + " murió";
+        if (e.deathMessage() != null) {
+            deathCause = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+                    .serialize(e.deathMessage());
+        }
+        
+        String location = String.format("%d, %d, %d", 
+            e.getEntity().getLocation().getBlockX(),
+            e.getEntity().getLocation().getBlockY(),
+            e.getEntity().getLocation().getBlockZ());
+        String world = e.getEntity().getWorld().getName();
+
+        String msg = cfg.deathMessage()
+            .replace("{player}", e.getEntity().getName())
+            .replace("{death_message}", deathCause)
+            .replace("{location}", location)
+            .replace("{world}", world)
+            .replace("{x}", String.valueOf(e.getEntity().getLocation().getBlockX()))
+            .replace("{y}", String.valueOf(e.getEntity().getLocation().getBlockY()))
+            .replace("{z}", String.valueOf(e.getEntity().getLocation().getBlockZ()));
         sendAsync(msg, cfg);
     }
 

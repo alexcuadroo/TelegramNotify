@@ -1,5 +1,5 @@
 name: TelegramNotify
-version: 2.2.2
+version: 2.3.0
 main: com.telegramnotify.Main
 api-version: 1.21
 

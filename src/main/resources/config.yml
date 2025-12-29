@@ -9,9 +9,15 @@ notifications:
   death: true
   server_start: true
 
-# Mensajes personalizables ({player} será reemplazado por el nombre del jugador)
+# Mensajes personalizables
+# Placeholders disponibles:
+#   {player} - Nombre del jugador
+#   {death_message} - Mensaje completo de muerte (solo en death)
+#   {location} - Coordenadas X, Y, Z (solo en death)
+#   {world} - Nombre del mundo (solo en death)
+#   {x}, {y}, {z} - Coordenadas individuales (solo en death)
 messages:
   join: "🟢 *{player}* entró al servidor"
   quit: "🔴 *{player}* salió del servidor"
-  death: "✖️ *{player}* murió"
+  death: "💀 {death_message}\n📍 Ubicación: `{location}` ({world})"
   server_start: "🔵 Servidor iniciado"
