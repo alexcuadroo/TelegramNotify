@@ -27,22 +27,23 @@ public class Main extends JavaPlugin implements Listener {
         saveDefaultConfig();
         loadConfigValues();
 
+        // Registrar comando siempre para permitir recarga si la config inicial es inválida
+        PluginCommand command = getCommand("telereload");
+        if (command != null) {
+            command.setExecutor(new ReloadCommand(this));
+        } else {
+            getLogger().severe("El comando telereload no está definido en plugin.yml");
+        }
+
         if (!configSnapshot.isValid()) {
             getLogger().severe("==============================================");
             getLogger().severe("Token o Chat ID no configurados");
             getLogger().severe("Por favor, configura el archivo config.yml");
+            getLogger().severe("Y usa /telereload para aplicar los cambios");
             getLogger().severe("==============================================");
-            return;
         }
 
         Bukkit.getPluginManager().registerEvents(this, this);
-        PluginCommand command = getCommand("telereload");
-        if (command == null) {
-            getLogger().severe("El comando telereload no está definido en plugin.yml");
-        } else {
-            command.setExecutor(new ReloadCommand(this));
-        }
-
         startWorker();
         getLogger().info("TelegramNotifications activado");
     }
@@ -74,7 +75,8 @@ public class Main extends JavaPlugin implements Listener {
         ConfigSnapshot cfg = configSnapshot;
         if (!cfg.isValid() || !cfg.notifyJoin()) return;
 
-        String msg = cfg.joinMessage().replace("{player}", e.getPlayer().getName());
+        String playerName = TelegramUtil.escapeMarkdown(e.getPlayer().getName());
+        String msg = cfg.joinMessage().replace("{player}", playerName);
         sendAsync(msg, cfg);
     }
 
@@ -83,7 +85,8 @@ public class Main extends JavaPlugin implements Listener {
         ConfigSnapshot cfg = configSnapshot;
         if (!cfg.isValid() || !cfg.notifyQuit()) return;
 
-        String msg = cfg.quitMessage().replace("{player}", e.getPlayer().getName());
+        String playerName = TelegramUtil.escapeMarkdown(e.getPlayer().getName());
+        String msg = cfg.quitMessage().replace("{player}", playerName);
         sendAsync(msg, cfg);
     }
 
@@ -92,12 +95,19 @@ public class Main extends JavaPlugin implements Listener {
         ConfigSnapshot cfg = configSnapshot;
         if (!cfg.isValid() || !cfg.notifyDeath()) return;
 
-        String deathCause = e.getEntity().getName() + " murió";
+        String playerName = TelegramUtil.escapeMarkdown(e.getEntity().getName());
+        String deathCause = playerName + " murió";
         if (e.deathMessage() != null) {
             deathCause = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
                     .serialize(e.deathMessage());
+            // No escapamos deathCause porque puede contener el nombre ya escapado o ser un mensaje complejo
+            // Pero el nombre del jugador en el mensaje de muerte de Bukkit suele ser el nombre real.
+            // Para ser seguros, podríamos intentar escapar el mensaje de muerte completo, 
+            // pero eso podría romper si Bukkit ya pone algo que parece markdown.
+            // Sin embargo, PlainTextComponentSerializer quita colores pero no escapa markdown.
+            deathCause = TelegramUtil.escapeMarkdown(deathCause);
         }
-        
+
         String location = String.format("%d, %d, %d", 
             e.getEntity().getLocation().getBlockX(),
             e.getEntity().getLocation().getBlockY(),
@@ -105,7 +115,7 @@ public class Main extends JavaPlugin implements Listener {
         String world = e.getEntity().getWorld().getName();
 
         String msg = cfg.deathMessage()
-            .replace("{player}", e.getEntity().getName())
+            .replace("{player}", playerName)
             .replace("{death_message}", deathCause)
             .replace("{location}", location)
             .replace("{world}", world)
@@ -139,11 +149,15 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getScheduler().cancelTask(workerTaskId);
         workerTaskId = -1;
 
-        // Procesa lo pendiente sin bloquear demasiado
-        for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
-            String msg = sendQueue.poll();
-            if (msg == null) break;
-            TelegramUtil.sendMessage(configSnapshot.token(), configSnapshot.chatId(), msg);
+        // Procesa lo pendiente de forma rápida antes de cerrar
+        if (!sendQueue.isEmpty()) {
+            getLogger().info("Enviando mensajes pendientes (" + sendQueue.size() + ")...");
+            // Limitamos a 5 mensajes para no bloquear el apagado del servidor demasiado tiempo
+            for (int i = 0; i < 5; i++) {
+                String msg = sendQueue.poll();
+                if (msg == null) break;
+                TelegramUtil.sendMessage(getLogger(), configSnapshot.token(), configSnapshot.chatId(), msg);
+            }
         }
     }
 
@@ -151,11 +165,10 @@ public class Main extends JavaPlugin implements Listener {
         ConfigSnapshot cfg = configSnapshot;
         if (!cfg.isValid()) return;
 
-        // Procesar hasta 10 mensajes por tick para no bloquear
-        for (int i = 0; i < 10; i++) {
-            String msg = sendQueue.poll();
-            if (msg == null) break;
-            TelegramUtil.sendMessage(cfg.token(), cfg.chatId(), msg);
+        // Procesar 1 mensaje por tick (máximo 20/seg) para respetar límites de Telegram
+        String msg = sendQueue.poll();
+        if (msg != null) {
+            TelegramUtil.sendMessage(getLogger(), cfg.token(), cfg.chatId(), msg);
         }
     }
 

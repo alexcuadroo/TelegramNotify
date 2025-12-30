@@ -1,8 +1,11 @@
 package com.telegramnotifications;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand implements CommandExecutor {
 
@@ -13,15 +16,15 @@ public class ReloadCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("telegramnotifications.reload")) {
-            sender.sendMessage("§cNo tienes permiso para usar este comando.");
+            sender.sendMessage(Component.text("No tienes permiso para usar este comando.", NamedTextColor.RED));
             return true;
         }
 
         plugin.reloadConfig();
         plugin.loadConfigValues();
-        sender.sendMessage("§a✓ Configuración de TelegramNotifications recargada.");
+        sender.sendMessage(Component.text("✓ Configuración de TelegramNotifications recargada.", NamedTextColor.GREEN));
         return true;
     }
 }
